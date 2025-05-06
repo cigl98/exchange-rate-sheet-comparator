@@ -1,0 +1,23 @@
+{
+  "allowedCurrencyPairs": [
+    "CZK/AUD",
+    "CZK/BRL",
+    "CZK/CNY",
+    "CZK/DKK",
+    "CZK/EUR",
+    "CZK/INR",
+    "CZK/ISK",
+    "CZK/ILS",
+    "CZK/JPY",
+    "CZK/CAD",
+    "CZK/HUF",
+    "CZK/MXN",
+    "CZK/NOK",
+    "CZK/NZD",
+    "CZK/PLN",
+    "CZK/SEK",
+    "CZK/CHF",
+    "CZK/USD",
+    "CZK/GBP"
+  ]
+}

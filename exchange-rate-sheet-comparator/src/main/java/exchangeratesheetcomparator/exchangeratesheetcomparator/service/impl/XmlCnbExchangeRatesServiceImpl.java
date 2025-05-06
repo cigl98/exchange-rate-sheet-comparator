@@ -12,7 +12,7 @@ import org.springframework.web.client.RestClient;
 
 
 @Service
-public class CnbExchangeRatesServiceImpl implements CnbExchangeRatesService {
+public class XmlCnbExchangeRatesServiceImpl implements CnbExchangeRatesService {
 
     private final RestClient restClient;
     private final XmlMapper xmlMapper;
@@ -21,7 +21,7 @@ public class CnbExchangeRatesServiceImpl implements CnbExchangeRatesService {
     private String CNB_EXCHANGE_RATES_URL;
 
 
-    public CnbExchangeRatesServiceImpl() {
+    public XmlCnbExchangeRatesServiceImpl() {
         this.restClient = RestClient.create();
         xmlMapper = new XmlMapper();
         xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
