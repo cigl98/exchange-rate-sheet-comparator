@@ -17,17 +17,23 @@ import org.springframework.web.client.RestClient;
 @Service
 public class CurrencyApiExchangeRateProviderServiceImpl implements ExternalExchangeRateProviderService {
 
+    public static final String CURRENCY_API_PROVIDER_NAME = "Currency-api";
+    public static final String CURRENCY_CODE_URL_PARAMETER = "{currencyCode}";
+
     private final AllowedCurrencyPairsService allowedCurrencyPairsService;
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
 
-    @Value("${exchange.rates.currency-api.url}")
-    private String CURRENCY_API_URL;
+    private final String currencyApiUrl;
 
 
     @Autowired
-    public CurrencyApiExchangeRateProviderServiceImpl(AllowedCurrencyPairsService allowedCurrencyPairsService) {
+    public CurrencyApiExchangeRateProviderServiceImpl(
+            AllowedCurrencyPairsService allowedCurrencyPairsService,
+            @Value("${exchange.rates.currency-api.url}") String currencyApiUrl) {
+
         this.allowedCurrencyPairsService = allowedCurrencyPairsService;
+        this.currencyApiUrl = currencyApiUrl;
         this.restClient = RestClient.create();
         this.objectMapper = new ObjectMapper();
     }
@@ -45,7 +51,7 @@ public class CurrencyApiExchangeRateProviderServiceImpl implements ExternalExcha
             String body = fetchExchangeRatesForCurrency(parsedCurrencyPair.first().toLowerCase());
             JsonNode jsonBody = objectMapper.readTree(body);
             double rate = jsonBody.get(parsedCurrencyPair.first()).get(parsedCurrencyPair.second()).asDouble();
-            return new ExternalExchangeRateDTO("Currency-api", currencyPair, rate);
+            return new ExternalExchangeRateDTO(CURRENCY_API_PROVIDER_NAME, currencyPair, rate);
         } catch (Exception e) {
             throw new ExchangeRatesFetchException("Unable to get exchange rate from Currency-api. Reason: " + e.getMessage(), e);
         }
@@ -54,7 +60,7 @@ public class CurrencyApiExchangeRateProviderServiceImpl implements ExternalExcha
 
     private String fetchExchangeRatesForCurrency(String currency) {
         return restClient.get()
-                .uri(CURRENCY_API_URL.replace("{currencyCode}", currency))
+                .uri(currencyApiUrl.replace(CURRENCY_CODE_URL_PARAMETER, currency))
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, ((request, response) -> {
                     throw new ExchangeRatesFetchException("Unable to get exchange rates from Currency-api. Currency-api endpoint returned: %s %s".formatted(response.getStatusCode(), response.getStatusText()));

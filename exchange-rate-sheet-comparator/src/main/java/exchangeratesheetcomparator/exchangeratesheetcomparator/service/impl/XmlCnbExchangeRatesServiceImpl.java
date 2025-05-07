@@ -17,11 +17,13 @@ public class XmlCnbExchangeRatesServiceImpl implements CnbExchangeRatesService {
     private final RestClient restClient;
     private final XmlMapper xmlMapper;
 
-    @Value( "${exchange.rates.cnb.url}")
-    private String CNB_EXCHANGE_RATES_URL;
+    private final String cnbExchangeRatesUrl;
 
 
-    public XmlCnbExchangeRatesServiceImpl() {
+    public XmlCnbExchangeRatesServiceImpl(
+            @Value( "${exchange.rates.cnb.url}") String cnbExchangeRatesUrl) {
+
+        this.cnbExchangeRatesUrl = cnbExchangeRatesUrl;
         this.restClient = RestClient.create();
         xmlMapper = new XmlMapper();
         xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -30,7 +32,7 @@ public class XmlCnbExchangeRatesServiceImpl implements CnbExchangeRatesService {
     public CnbExchangeRatesDTO fetchExchangeRates() throws ExchangeRatesFetchException {
         String body = restClient
                 .get()
-                .uri(CNB_EXCHANGE_RATES_URL)
+                .uri(cnbExchangeRatesUrl)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, ((request, response) -> {
                     throw new ExchangeRatesFetchException("Unable to get exchange rates from CNB. CNB endpoint returned: %s %s".formatted(response.getStatusCode(), response.getStatusText()));

@@ -30,7 +30,7 @@ public class CnbExchangeRatesDTO {
         private String code;
 
         @JacksonXmlProperty(isAttribute = true, localName = "mnozstvi")
-        private String amount;
+        private Integer amount;
 
         @JacksonXmlProperty(isAttribute = true, localName = "kurz")
         private String rate;
