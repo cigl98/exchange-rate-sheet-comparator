@@ -1,9 +1,8 @@
 package exchangeratesheetcomparator.exchangeratesheetcomparator.dto;
 
-import java.util.List;
-
+import java.util.Set;
 
 public record AllowedCurrencyPairsDTO(
-        List<String> allowedCurrencyPairs
+        Set<String> allowedCurrencyPairs
 ) {
 }

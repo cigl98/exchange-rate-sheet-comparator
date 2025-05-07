@@ -3,7 +3,7 @@ package exchangeratesheetcomparator.exchangeratesheetcomparator.service.impl;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import exchangeratesheetcomparator.exchangeratesheetcomparator.dto.CnbExchangeRatesDTO;
-import exchangeratesheetcomparator.exchangeratesheetcomparator.exception.CnbExchangeRatesException;
+import exchangeratesheetcomparator.exchangeratesheetcomparator.exception.ExchangeRatesFetchException;
 import exchangeratesheetcomparator.exchangeratesheetcomparator.service.CnbExchangeRatesService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
@@ -17,7 +17,7 @@ public class XmlCnbExchangeRatesServiceImpl implements CnbExchangeRatesService {
     private final RestClient restClient;
     private final XmlMapper xmlMapper;
 
-    @Value( "${cnb.exchange.rates.url}")
+    @Value( "${exchange.rates.cnb.url}")
     private String CNB_EXCHANGE_RATES_URL;
 
 
@@ -27,19 +27,19 @@ public class XmlCnbExchangeRatesServiceImpl implements CnbExchangeRatesService {
         xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    public CnbExchangeRatesDTO fetchExchangeRates() {
+    public CnbExchangeRatesDTO fetchExchangeRates() throws ExchangeRatesFetchException {
         String body = restClient
                 .get()
                 .uri(CNB_EXCHANGE_RATES_URL)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, ((request, response) -> {
-                    throw new CnbExchangeRatesException("Unable to get exchange rates from CNB. CNB returned: %s %s".formatted(response.getStatusCode(), response.getStatusText()));
+                    throw new ExchangeRatesFetchException("Unable to get exchange rates from CNB. CNB endpoint returned: %s %s".formatted(response.getStatusCode(), response.getStatusText()));
                 }))
                 .body(String.class);
         try {
             return xmlMapper.readValue(body, CnbExchangeRatesDTO.class);
         } catch (Exception e) {
-            throw new CnbExchangeRatesException("Unable to parse response from CNB, reason: " + e.getMessage(), e);
+            throw new ExchangeRatesFetchException("Unable to parse response from CNB, reason: " + e.getMessage(), e);
         }
     }
 }

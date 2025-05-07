@@ -15,6 +15,8 @@ import java.io.IOException;
 @Service
 public class ClasspathAllowedCurrencyPairsServiceImpl implements AllowedCurrencyPairsService {
 
+    private static final String ALLOWED_CURRENCY_PAIRS_JSON_PATH = "classpath:allowed-currency-pairs.json";
+    
     private final ObjectMapper objectMapper;
     private final ResourceLoader resourceLoader;
 
@@ -26,9 +28,9 @@ public class ClasspathAllowedCurrencyPairsServiceImpl implements AllowedCurrency
     }
 
 
-    public AllowedCurrencyPairsDTO getAllowedCurrencyPairs() {
+    public AllowedCurrencyPairsDTO getAllowedCurrencyPairs() throws UnableToLoadCurrencyPairsException {
         try {
-            Resource resource = resourceLoader.getResource("classpath:allowed-currency-pairs.json");
+            Resource resource = resourceLoader.getResource(ALLOWED_CURRENCY_PAIRS_JSON_PATH);
             return objectMapper.readValue(resource.getInputStream(), AllowedCurrencyPairsDTO.class);
         } catch (IOException e) {
             throw new UnableToLoadCurrencyPairsException("Failed to read allowed currency pairs, reason: " + e.getMessage(), e);

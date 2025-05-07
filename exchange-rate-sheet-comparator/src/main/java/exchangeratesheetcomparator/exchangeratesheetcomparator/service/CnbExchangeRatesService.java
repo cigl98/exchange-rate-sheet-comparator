@@ -1,8 +1,9 @@
 package exchangeratesheetcomparator.exchangeratesheetcomparator.service;
 
 import exchangeratesheetcomparator.exchangeratesheetcomparator.dto.CnbExchangeRatesDTO;
+import exchangeratesheetcomparator.exchangeratesheetcomparator.exception.ExchangeRatesFetchException;
 
 
 public interface CnbExchangeRatesService {
-    CnbExchangeRatesDTO fetchExchangeRates();
+    CnbExchangeRatesDTO fetchExchangeRates() throws ExchangeRatesFetchException;
 }

@@ -1,0 +1,9 @@
+package exchangeratesheetcomparator.exchangeratesheetcomparator.service;
+
+import exchangeratesheetcomparator.exchangeratesheetcomparator.dto.ExternalExchangeRateDTO;
+import exchangeratesheetcomparator.exchangeratesheetcomparator.exception.ExchangeRatesFetchException;
+
+
+public interface ExternalExchangeRateProviderService {
+    ExternalExchangeRateDTO fetchExchangeRateForCurrencyPair(String currencyPair) throws ExchangeRatesFetchException;
+}
