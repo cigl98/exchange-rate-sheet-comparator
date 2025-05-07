@@ -2,11 +2,12 @@ package exchangeratesheetcomparator.exchangeratesheetcomparator.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import exchangeratesheetcomparator.exchangeratesheetcomparator.dto.ExternalExchangeRateDTO;
+import exchangeratesheetcomparator.exchangeratesheetcomparator.dto.ExchangeRateDTO;
 import exchangeratesheetcomparator.exchangeratesheetcomparator.exception.ExchangeRatesFetchException;
 import exchangeratesheetcomparator.exchangeratesheetcomparator.exception.InvalidCurrencyPairException;
 import exchangeratesheetcomparator.exchangeratesheetcomparator.service.AllowedCurrencyPairsService;
 import exchangeratesheetcomparator.exchangeratesheetcomparator.service.ExternalExchangeRateProviderService;
+import exchangeratesheetcomparator.exchangeratesheetcomparator.utils.CurrencyPair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
@@ -40,18 +41,16 @@ public class CurrencyApiExchangeRateProviderServiceImpl implements ExternalExcha
 
 
     @Override
-    public ExternalExchangeRateDTO fetchExchangeRateForCurrencyPair(String currencyPair) throws ExchangeRatesFetchException {
-        if (!allowedCurrencyPairsService.getAllowedCurrencyPairs().allowedCurrencyPairs().contains(currencyPair)) {
+    public ExchangeRateDTO fetchExchangeRateForCurrencyPair(CurrencyPair currencyPair) throws ExchangeRatesFetchException {
+        if (!allowedCurrencyPairsService.getAllowedCurrencyPairs().allowedCurrencyPairs().contains(currencyPair.toString())) {
             throw new InvalidCurrencyPairException("Currency pair is not supported.");
         }
 
-        CurrencyPair parsedCurrencyPair = parseCurrencyPair(currencyPair);
-
         try {
-            String body = fetchExchangeRatesForCurrency(parsedCurrencyPair.first().toLowerCase());
+            String body = fetchExchangeRatesForCurrency(currencyPair.base().toLowerCase());
             JsonNode jsonBody = objectMapper.readTree(body);
-            double rate = jsonBody.get(parsedCurrencyPair.first()).get(parsedCurrencyPair.second()).asDouble();
-            return new ExternalExchangeRateDTO(CURRENCY_API_PROVIDER_NAME, currencyPair, rate);
+            double rate = jsonBody.get(currencyPair.base()).get(currencyPair.other()).asDouble();
+            return new ExchangeRateDTO(CURRENCY_API_PROVIDER_NAME, currencyPair, rate);
         } catch (Exception e) {
             throw new ExchangeRatesFetchException("Unable to get exchange rate from Currency-api. Reason: " + e.getMessage(), e);
         }
@@ -66,20 +65,5 @@ public class CurrencyApiExchangeRateProviderServiceImpl implements ExternalExcha
                     throw new ExchangeRatesFetchException("Unable to get exchange rates from Currency-api. Currency-api endpoint returned: %s %s".formatted(response.getStatusCode(), response.getStatusText()));
                 }))
                 .body(String.class);
-    }
-
-
-    private CurrencyPair parseCurrencyPair(String currencyPair) {
-        String[] split = currencyPair.split("/");
-        if (split.length != 2) {
-            throw new InvalidCurrencyPairException("Currency pair must be in format {currency1/currency2}.");
-        }
-        return new CurrencyPair(split[0], split[1]);
-    }
-
-    private record CurrencyPair(
-            String first,
-            String second
-    ) {
     }
 }

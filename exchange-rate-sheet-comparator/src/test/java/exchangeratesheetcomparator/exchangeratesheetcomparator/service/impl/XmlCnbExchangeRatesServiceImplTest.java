@@ -2,9 +2,12 @@ package exchangeratesheetcomparator.exchangeratesheetcomparator.service.impl;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import exchangeratesheetcomparator.exchangeratesheetcomparator.dto.CnbExchangeRatesDTO;
+import exchangeratesheetcomparator.exchangeratesheetcomparator.dto.ExchangeRateDTO;
 import exchangeratesheetcomparator.exchangeratesheetcomparator.exception.ExchangeRatesFetchException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,15 +44,11 @@ class XmlCnbExchangeRatesServiceImplTest {
                         .withHeader("Content-Type", "application/xml")
                         .withBody(BODY_XML)));
 
-        CnbExchangeRatesDTO dto = service.fetchExchangeRates();
-
-        assertNotNull(dto);
-        assertEquals(4, dto.getTable().getRows().size());
-        assertEquals("24,960", dto.getTable().getRows().get(0).getRate());
-        assertEquals("22,031", dto.getTable().getRows().get(1).getRate());
-        assertEquals("15,958", dto.getTable().getRows().get(2).getRate());
-        assertEquals("15,427", dto.getTable().getRows().get(3).getRate());
-        assertEquals(100, dto.getTable().getRows().get(3).getAmount());
+        Map<String, ExchangeRateDTO> res = service.fetchExchangeRates();
+        assertNotNull(res);
+        assertEquals(4, res.size());
+        assertEquals(24.960, res.get("eur").rate());
+        assertEquals(0.15427, res.get("jpy").rate());
 
     }
 

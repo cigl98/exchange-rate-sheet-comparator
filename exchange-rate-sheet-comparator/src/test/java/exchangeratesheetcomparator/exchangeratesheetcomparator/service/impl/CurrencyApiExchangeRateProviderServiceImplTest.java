@@ -2,10 +2,11 @@ package exchangeratesheetcomparator.exchangeratesheetcomparator.service.impl;
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import exchangeratesheetcomparator.exchangeratesheetcomparator.dto.AllowedCurrencyPairsDTO;
-import exchangeratesheetcomparator.exchangeratesheetcomparator.dto.ExternalExchangeRateDTO;
+import exchangeratesheetcomparator.exchangeratesheetcomparator.dto.ExchangeRateDTO;
 import exchangeratesheetcomparator.exchangeratesheetcomparator.exception.ExchangeRatesFetchException;
 import exchangeratesheetcomparator.exchangeratesheetcomparator.exception.InvalidCurrencyPairException;
 import exchangeratesheetcomparator.exchangeratesheetcomparator.service.AllowedCurrencyPairsService;
+import exchangeratesheetcomparator.exchangeratesheetcomparator.utils.CurrencyPair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -47,11 +48,12 @@ class CurrencyApiExchangeRateProviderServiceImplTest {
                         .withHeader("Content-Type", "application/json")
                         .withBody(BODY_JSON)));
 
-        ExternalExchangeRateDTO dto = service.fetchExchangeRateForCurrencyPair("eur/czk");
+        ExchangeRateDTO dto = service.fetchExchangeRateForCurrencyPair(new CurrencyPair("eur", "czk"));
 
         assertNotNull(dto);
         assertEquals("Currency-api", dto.providerName());
-        assertEquals("eur/czk", dto.currencyPair());
+        assertEquals("eur", dto.currencyPair().base());
+        assertEquals("czk", dto.currencyPair().other());
         assertEquals(24.92280708, dto.rate());
     }
 
@@ -61,7 +63,7 @@ class CurrencyApiExchangeRateProviderServiceImplTest {
                 .thenReturn(new AllowedCurrencyPairsDTO(Set.of("eur/czk")));
 
         assertThrows(InvalidCurrencyPairException.class,
-                () -> service.fetchExchangeRateForCurrencyPair("usd/czk")
+                () -> service.fetchExchangeRateForCurrencyPair(new CurrencyPair("usd", "czk"))
         );
     }
 
@@ -76,7 +78,7 @@ class CurrencyApiExchangeRateProviderServiceImplTest {
                         .withBody("Internal Server Error")));
 
         assertThrows(ExchangeRatesFetchException.class,
-                () -> service.fetchExchangeRateForCurrencyPair("eur/czk")
+                () -> service.fetchExchangeRateForCurrencyPair(new CurrencyPair("eur", "czk"))
         );
     }
 
@@ -91,7 +93,7 @@ class CurrencyApiExchangeRateProviderServiceImplTest {
                         .withBody("{ Body }")));
 
         assertThrows(ExchangeRatesFetchException.class,
-                () -> service.fetchExchangeRateForCurrencyPair("eur/czk")
+                () -> service.fetchExchangeRateForCurrencyPair(new CurrencyPair("eur", "czk"))
         );
     }
 }
